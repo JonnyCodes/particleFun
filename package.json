@@ -1,0 +1,21 @@
+{
+  "name": "jonnycv",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "yarn parcel src/index.html --dist-dir bin --open",
+    "build": "parcel build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "pixi.js": "^6.1.2"
+  },
+  "devDependencies": {
+    "parcel": "^2.0.0-rc.0",
+    "parcel-plugin-json-url-loader": "^0.1.2",
+    "parcel-reporter-static-files-copy": "^1.3.0",
+    "typescript": "^4.3.5"
+  }
+}
