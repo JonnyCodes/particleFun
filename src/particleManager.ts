@@ -1,6 +1,7 @@
 import { Container } from "@pixi/display";
 import { Graphics } from "@pixi/graphics";
 import { Point, Rectangle } from "@pixi/math";
+import { AttractionPoint } from "./attractionPoint";
 import Particle from "./particle";
 import { randomBetween, randomPointWithin } from "./utils";
 
@@ -8,13 +9,13 @@ export default class ParticleManager {
     private particles: Particle[];
     private container: Container
     private boundary: Rectangle;
-    private attractionPoints: Point[];
-    private attractionPointsToRemove: Point[];
+    private attractionPoints: AttractionPoint[];
+    private shouldRemoveAttractionPoints: boolean;
 
     constructor(container: Container, boundary: Rectangle) {
         this.particles = [];
         this.attractionPoints = [];
-        this.attractionPointsToRemove = [];
+        this.shouldRemoveAttractionPoints = false;
         this.container = container;
         this.boundary = boundary;
     }
@@ -33,13 +34,13 @@ export default class ParticleManager {
         this.container.addChild(particle);
     }
 
-    public removeAttractionPoint(point: Point) {
-        this.attractionPointsToRemove.push(point);
-    }
-
-    public addAttractionPoint(point: Point) {
+    public addAttractionPoint(point: AttractionPoint) {
         this.attractionPoints.push(point);
         return point;
+    }
+
+    public removeAttractionPoints() {
+        this.shouldRemoveAttractionPoints = true;
     }
 
     public resize(x: number, y: number, width: number, height: number) {
@@ -63,12 +64,18 @@ export default class ParticleManager {
             this.attractionPoints.forEach((attractionPoint) => {
                 const dist = Math.sqrt(Math.pow(particle.x - attractionPoint.x, 2) + Math.pow(particle.y - attractionPoint.y, 2));
 
-                if (dist < 300) {
+                if (dist < attractionPoint.distance) {
                     particle.runBehaviours(attractionPoint);
                 }
             });
 
             particle.update(deltaTime);
         });
+
+        if (this.shouldRemoveAttractionPoints) {
+            this.attractionPoints = [];
+            this.shouldRemoveAttractionPoints = false;
+        }
+
     }
 }

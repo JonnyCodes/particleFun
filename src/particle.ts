@@ -1,6 +1,6 @@
 import { Graphics } from "@pixi/graphics";
 import { Sprite } from "@pixi/sprite";
-import { Point } from "pixi.js";
+import { AttractionPoint } from "./attractionPoint";
 import { randomBetween } from "./utils";
 import { Vector } from "./vector";
 
@@ -11,7 +11,6 @@ export default class Particle extends Sprite {
     private isSeeking: boolean;
     private wasSeeking: boolean;
     private maxSpeed = 6;
-    private maxForce = 0.75;
 
     private graphics: Graphics;
 
@@ -19,10 +18,12 @@ export default class Particle extends Sprite {
         super();
 
         this.graphics = new Graphics();
-        this.graphics.beginFill(0xF9F871);
+        this.graphics.beginFill(0xFFFFFF);
         this.graphics.drawCircle(0, 0, randomBetween(2, 4));
         this.addChild(this.graphics);
         this.alpha = 0.25;
+
+        this.graphics.tint = [0xF9F871, 0xFEB85F, 0xE38065, 0xAF5869][Math.floor(Math.random()*4)]
 
         this.isSeeking = this.wasSeeking = false;
 
@@ -31,9 +32,8 @@ export default class Particle extends Sprite {
         this.acceleration = new Vector();
     }
 
-    public runBehaviours(target: Point) {
-        const seekVec = this.seek(target);
-        this.applyForce(seekVec);
+    public runBehaviours(target: AttractionPoint) {
+        this.applyForce(this.seek(target));
 
         this.isSeeking = true;
     }
@@ -58,10 +58,10 @@ export default class Particle extends Sprite {
         this.isSeeking = false;
     }
 
-    private seek(target: Point): Vector {
+    private seek(target: AttractionPoint): Vector {
         const desired = Vector.subtractPoints(target, this.position);
         desired.normalize().multiplyScalar(this.maxSpeed);
-        return desired.subtract(this.velocity).limit(this.maxForce);
+        return desired.subtract(this.velocity).limit(target.power);
     }
  
     private applyForce(forceVector: Vector) {
